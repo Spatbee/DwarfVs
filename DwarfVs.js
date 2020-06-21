@@ -72,7 +72,9 @@
                 let battlerType = battler.battler.type;
                 let buildingKillChance = 0;
                 let unitKillChance = 0;
-                battler.battler.act(battler.player);
+                if(battler.battler.act) {
+                    battler.battler.act(battler.player);
+                }
                 if(battler.battler.canKill) {
                     if( battlerType === BUILDING) {
                         buildingKillChance = battler.player.buildingsChanceToKillBuilding + battler.battler.chanceToKillBuilding;
@@ -103,8 +105,18 @@
     function preparePlayerForCombat(player) {
         player.buildingsChanceToKillBuilding = 0;
         player.buildingsChanceToKillUnit = 0;
-        player.unitsChanceToKillBuildings = 0;
-        player.unitsChanceToKillUnits = 0;
+        player.unitsChanceToKillBuilding = 0;
+        player.unitsChanceToKillUnit = 0;
+        player.buildings.forEach(building => {
+            if(building.prepare) {
+                building.prepare(player);
+            }
+        });
+        player.units.forEach(unit => {
+            if(unit.prepare) {
+                unit.prepare(player);
+            }
+        });
     }
 
     function addToCombatList(combatList, battlers, player, enemyPlayer) {
@@ -156,9 +168,12 @@
         createArsonist,
         createSlutDwarf,
         createNewborn,
+        createCommandwarf,
         //*****BUIDLINGS****
         createHouse,
         createCatapult,
+        createCommandCenter,
+        createMagicMissileSilo
     ];
 
     module.getOptions = function() {
@@ -175,8 +190,7 @@
             type: UNIT,
             canKill: true,
             chanceToKillBuilding: 0,
-            chanceToKillUnit: 0,
-            act: function(player) {}
+            chanceToKillUnit: 0
         }
     }
 
@@ -187,8 +201,7 @@
             type: UNIT,
             canKill: true,
             chanceToKillBuilding: 0,
-            chanceToKillUnit: .15,
-            act: function(player) {}
+            chanceToKillUnit: .15
         }
     }
 
@@ -199,8 +212,7 @@
             type: UNIT,
             canKill: true,
             chanceToKillBuilding: 0.15,
-            chanceToKillUnit: 0,
-            act: function(player) {}
+            chanceToKillUnit: 0
         }
     }
 
@@ -217,6 +229,20 @@
                     postMessage("<span style='color:" + player.color + "'>" + player.name + "</span>'s Slut Dwarf gave birth");
                     player.units.push(createNewborn());
                 }
+            }
+        }
+    }
+
+    function createCommandwarf() {
+        return {
+            name: "Commandwarf",
+            description: "All units will fight under his command...warf. Units get 2% chance to kill enemy units.",
+            type: UNIT,
+            canKill: true,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            prepare(player) {
+                player.unitsChanceToKillUnit += .02;
             }
         }
     }
@@ -246,8 +272,7 @@
             type: BUILDING,
             canKill: true,
             chanceToKillBuilding: 0,
-            chanceToKillUnit: 0,
-            act: function(player) {}
+            chanceToKillUnit: 0
         }
     }
 
@@ -258,8 +283,32 @@
             type: BUILDING,
             canKill: true,
             chanceToKillBuilding: .08,
-            chanceToKillUnit: .08,
-            act: function(player) {}
+            chanceToKillUnit: .08
+        }
+    }
+
+    function createCommandCenter() {
+        return {
+            name: "Command Center",
+            description: "A place where important murders are planned. Units get 2% chance to kill enemy units.",
+            type: BUILDING,
+            canKill: true,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            prepare(player) {
+                player.unitsChanceToKillUnit += .02;
+            }
+        }
+    }
+
+    function createMagicMissileSilo() {
+        return {
+            name: "Magic Missile Silo",
+            description: "Launches intercontinental magic missiles at enemy hard points. 15% chance to destroy enemy buildings.",
+            type: BUILDING,
+            canKill: true,
+            chanceToKillBuilding: 0.15,
+            chanceToKillUnit: 0
         }
     }
 
