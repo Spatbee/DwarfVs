@@ -20,8 +20,8 @@
             color: color,
             buildingsChanceToKillBuilding: 0,
             buildingsChanceToKillUnit: 0,
-            unitsChanceToKillBuildings: 0,
-            unitsChanceToKillUnits: 0,
+            unitsChanceToKillBuilding: 0,
+            unitsChanceToKillUnit: 0,
             buildings:[
                 createHouse()
             ],
@@ -111,16 +111,20 @@
 
     function destroyBuilding(battler) {
         let aliveBuildings = battler.enemyPlayer.buildings.filter(isAlive);
-        let buildingToKill = aliveBuildings[Math.floor(Math.random() * aliveBuildings.length)];
-        buildingToKill.isDead = true;
-        postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " destroyed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + buildingToKill.name);
+        if(aliveBuildings.length > 0) {
+            let buildingToKill = aliveBuildings[Math.floor(Math.random() * aliveBuildings.length)];
+            buildingToKill.isDead = true;
+            postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " destroyed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + buildingToKill.name);
+        }
     }
 
     function killUnit(battler) {
         let aliveUnits = battler.enemyPlayer.units.filter(isAlive);
-        let unitToKill = aliveUnits[Math.floor(Math.random() * aliveUnits.length)];
-        unitToKill.isDead = true;
-        postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " killed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + unitToKill.name);
+        if(aliveUnits.length > 0) {
+            let unitToKill = aliveUnits[Math.floor(Math.random() * aliveUnits.length)];
+            unitToKill.isDead = true;
+            postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " killed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + unitToKill.name);
+        }
     }
 
     function shuffleArray(arr) {
