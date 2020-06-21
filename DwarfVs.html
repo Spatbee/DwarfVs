@@ -15,7 +15,8 @@ function writeMessage(message) {
 dwarfVs.setMessageCallback(writeMessage);
 
 var pick = function() {};
-function giveOptions(player, options) {
+function giveOptions(player) {
+    let options = dwarfVs.getOptions();
     pick = function(index) {
         dwarfVs.doProject(player, options[index]);
         progressRound();
@@ -37,14 +38,14 @@ function progressRound() {
         if(round !== 0) {
             dwarfVs.doRound(player1, player2);
         }
-        giveOptions(player1, dwarfVs.getOptions());
+        giveOptions(player1);
     } else if (round % 4 === 1) {
-        giveOptions(player2, dwarfVs.getOptions());
+        giveOptions(player2);
     } else if (round % 4 === 2) {
         dwarfVs.doRound(player1, player2);
-        giveOptions(player2, dwarfVs.getOptions());
+        giveOptions(player2);
     } else {
-        giveOptions(player2, dwarfVs.getOptions());
+        giveOptions(player1);
     }
     round++;
 }

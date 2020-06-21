@@ -189,8 +189,8 @@
             name: "Arsonist",
             description: "Burns shit down. 12% chance to destroy a building.",
             type: UNIT,
-            chanceToKillBuilding: 0,
-            chanceToKillUnit: .15,
+            chanceToKillBuilding: 0.15,
+            chanceToKillUnit: 0,
             act: function(player) {}
         }
     }
