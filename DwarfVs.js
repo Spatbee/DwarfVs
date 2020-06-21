@@ -33,9 +33,12 @@
 
     module.doProject = function(player, project) {
         unit = project();
+        
         if(unit.type === BUILDING) {
+            postMessage("<span style='color:" + player.color + "'>" + player.name + "</span> built a " + unit.name);
             player.buildings.push(unit);
         } else if(unit.type === UNIT) {
+            postMessage("<span style='color:" + player.color + "'>" + player.name + "</span> hired a " + unit.name);
             player.units.push(unit);
         }
     };
@@ -69,26 +72,29 @@
                 let battlerType = battler.battler.type;
                 let buildingKillChance = 0;
                 let unitKillChance = 0;
-                if( battlerType === BUILDING) {
-                    buildingKillChance = battler.player.buildingsChanceToKillBuilding + battler.battler.chanceToKillBuilding;
-                    unitKillChance = battler.player.buildingsChanceToKillUnit + battler.battler.chanceToKillUnit;
-                } else if ( battlerType === UNIT ) {
-                    buildingKillChance = battler.player.unitsChanceToKillBuilding + battler.battler.chanceToKillBuilding;
-                    unitKillChance = battler.player.unitsChanceToKillUnit + battler.battler.chanceToKillUnit;
-                }
-                while(buildingKillChance > 1) {
-                    destroyBuilding(battler);
-                    buildingKillChance -= 1;
-                }
-                if(Math.random() < buildingKillChance) {
-                    destroyBuilding(battler);
-                }
-                while(unitKillChance > 1) {
-                    killUnit(battler);
-                    unitKillChance -= 1;
-                }
-                if(Math.random() < unitKillChance) {
-                    killUnit(battler);
+                battler.battler.act(battler.player);
+                if(battler.battler.canKill) {
+                    if( battlerType === BUILDING) {
+                        buildingKillChance = battler.player.buildingsChanceToKillBuilding + battler.battler.chanceToKillBuilding;
+                        unitKillChance = battler.player.buildingsChanceToKillUnit + battler.battler.chanceToKillUnit;
+                    } else if ( battlerType === UNIT ) {
+                        buildingKillChance = battler.player.unitsChanceToKillBuilding + battler.battler.chanceToKillBuilding;
+                        unitKillChance = battler.player.unitsChanceToKillUnit + battler.battler.chanceToKillUnit;
+                    }
+                    while(buildingKillChance > 1) {
+                        destroyBuilding(battler);
+                        buildingKillChance -= 1;
+                    }
+                    if(Math.random() < buildingKillChance) {
+                        destroyBuilding(battler);
+                    }
+                    while(unitKillChance > 1) {
+                        killUnit(battler);
+                        unitKillChance -= 1;
+                    }
+                    if(Math.random() < unitKillChance) {
+                        killUnit(battler);
+                    }
                 }
             }
         });
@@ -99,8 +105,6 @@
         player.buildingsChanceToKillUnit = 0;
         player.unitsChanceToKillBuildings = 0;
         player.unitsChanceToKillUnits = 0;
-        player.buildings.forEach(building => building.act());
-        player.units.forEach(unit => unit.act());
     }
 
     function addToCombatList(combatList, battlers, player, enemyPlayer) {
@@ -150,6 +154,8 @@
         createDwarf,
         createMurderDwarf,
         createArsonist,
+        createSlutDwarf,
+        createNewborn,
         //*****BUIDLINGS****
         createHouse,
         createCatapult,
@@ -167,6 +173,7 @@
             name: "Dwarf",
             description: "Nothing special.",
             type: UNIT,
+            canKill: true,
             chanceToKillBuilding: 0,
             chanceToKillUnit: 0,
             act: function(player) {}
@@ -178,6 +185,7 @@
             name: "Murder Dwarf",
             description: "Loves killing people. 15% chance to kill a unit.",
             type: UNIT,
+            canKill: true,
             chanceToKillBuilding: 0,
             chanceToKillUnit: .15,
             act: function(player) {}
@@ -189,9 +197,43 @@
             name: "Arsonist",
             description: "Burns shit down. 12% chance to destroy a building.",
             type: UNIT,
+            canKill: true,
             chanceToKillBuilding: 0.15,
             chanceToKillUnit: 0,
             act: function(player) {}
+        }
+    }
+
+    function createSlutDwarf() {
+        return {
+            name: "Slut Dwarf",
+            description: "Likes to fuck. 20% chance to make a baby.",
+            type: UNIT,
+            canKill: true,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            act: function(player) {
+                if(Math.random() < .2) {
+                    postMessage("<span style='color:" + player.color + "'>" + player.name + "</span>'s Slut Dwarf gave birth");
+                    player.units.push(createNewborn());
+                }
+            }
+        }
+    }
+
+    function createNewborn() {
+        return {
+            name: "Newborn",
+            description: "It's a baby. Can't kill.",
+            type: UNIT,
+            canKill: false,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            act: function(player) {
+                this.isDead = true;
+                postMessage("<span style='color:" + player.color + "'>" + player.name + "</span>'s Newborn grew up!");
+                player.units.push(createDwarf());
+            }
         }
     }
 
@@ -202,6 +244,7 @@
             name: "House",
             description: "A place to live.",
             type: BUILDING,
+            canKill: true,
             chanceToKillBuilding: 0,
             chanceToKillUnit: 0,
             act: function(player) {}
@@ -213,6 +256,7 @@
             name: "Catapult",
             description: "Lobs rocks. 8% chance to kill a building, 8% chance to kill a unit",
             type: BUILDING,
+            canKill: true,
             chanceToKillBuilding: .08,
             chanceToKillUnit: .08,
             act: function(player) {}
