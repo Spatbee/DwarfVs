@@ -4,9 +4,20 @@
     const UNIT = 1;
     const BUILDING = 2;
 
+    var messageCallback;
 
-    module.getNewPlayer = function() {
+    module.setMessageCallback = function(callback) {
+        messageCallback = callback;
+    }
+
+    function postMessage(message) {
+        messageCallback(message);
+    }
+
+    module.getNewPlayer = function(name, color) {
         return {
+            name: name,
+            color: color,
             buildingsChanceToKillBuilding: 0,
             buildingsChanceToKillUnit: 0,
             unitsChanceToKillBuildings: 0,
@@ -29,7 +40,21 @@
         addToCombatList(combatList, player2.buildings, player2, player1);
         addToCombatList(combatList, player2.units, player2, player1);
         shuffleArray(combatList);
+        doCombat(combatList);
+        cull(player1);
+        cull(player2)
+    };
 
+    function sortUnitsAlphabetically(a, b) {
+        return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+    }
+
+    function cull(player) {
+        player.buildings = player.buildings.filter(isAlive).sort(sortUnitsAlphabetically);
+        player.units = player.units.filter(isAlive).sort(sortUnitsAlphabetically);
+    }
+
+    function doCombat(combatList) {
         combatList.forEach(battler => {
             if(! battler.battler.isDead ){
                 let battlerType = battler.battler.type;
@@ -43,22 +68,22 @@
                     unitKillChance = battler.player.unitsChanceToKillUnit + battler.battler.chanceToKillUnit;
                 }
                 while(buildingKillChance > 1) {
-                    destroyBuilding(battler.battler.name, battler.enemyPlayer);
+                    destroyBuilding(battler);
                     buildingKillChance -= 1;
                 }
                 if(Math.random() < buildingKillChance) {
-                    destroyBuilding(battler.battler.name, battler.enemyPlayer);
+                    destroyBuilding(battler);
                 }
                 while(unitKillChance > 1) {
-                    killUnit(battler.battler.name, battler.enemyPlayer);
+                    killUnit(battler);
                     unitKillChance -= 1;
                 }
                 if(Math.random() < unitKillChance) {
-                    killUnit(battler.battler.name, battler.enemyPlayer);
+                    killUnit(battler);
                 }
             }
         });
-    };
+    }
 
     function preparePlayerForCombat(player) {
         player.buildingsChanceToKillBuilding = 0;
@@ -84,18 +109,18 @@
         return ! unit.isDead;
     }
 
-    function destroyBuilding(killerName, victimPlayer) {
-        let aliveBuildings = victimPlayer.buildings.filter(isAlive);
+    function destroyBuilding(battler) {
+        let aliveBuildings = battler.enemyPlayer.buildings.filter(isAlive);
         let buildingToKill = aliveBuildings[Math.floor(Math.random() * aliveBuildings.length)];
         buildingToKill.isDead = true;
-        console.log(killerName + " destroyed " + buildingToKill.name);
+        postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " destroyed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + buildingToKill.name);
     }
 
-    function killUnit(killerName, victimPlayer) {
-        let aliveUnits = victimPlayer.units.filter(isAlive);
+    function killUnit(battler) {
+        let aliveUnits = battler.enemyPlayer.units.filter(isAlive);
         let unitToKill = aliveUnits[Math.floor(Math.random() * aliveUnits.length)];
         unitToKill.isDead = true;
-        console.log(killerName + " killed " + unitToKill.name);
+        postMessage("<span style='color:" + battler.player.color + "'>" + battler.player.name + "</span>'s " + battler.battler.name + " killed <span style='color:" + battler.enemyPlayer.color + "'>"+ battler.enemyPlayer.name +"</span>'s " + unitToKill.name);
     }
 
     function shuffleArray(arr) {
@@ -119,7 +144,7 @@
         }
     }
 
-    //***********************BUILDINGS*****************************************************
+    //***********************BUILDINGS****************************************************
 
     function createHouse() {
         return {

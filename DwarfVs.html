@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html>
-    
+    <body>
+        <div id="messages"></div>
+    </body>
 </html>
 <script src="./dwarfVs.js"></script>
 <script>
 
-var player1 = dwarfVs.getNewPlayer();
-var player2 = dwarfVs.getNewPlayer();
+function writeMessage(message) {
+    let messages = document.getElementById("messages");
+    messages.innerHTML = messages.innerHTML + "<div>"+message+"</div>";
+}
+dwarfVs.setMessageCallback(writeMessage);
+
+var player1 = dwarfVs.getNewPlayer("Dan", "#FF0000");
+var player2 = dwarfVs.getNewPlayer("Kate", "#0000FF");
+
 dwarfVs.doRound(player1, player2);
 
 </script>
