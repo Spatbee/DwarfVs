@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <body>
+        <div id="options"></div>
         <div id="messages"></div>
     </body>
 </html>
@@ -13,9 +14,42 @@ function writeMessage(message) {
 }
 dwarfVs.setMessageCallback(writeMessage);
 
+var pick = function() {};
+function giveOptions(player, options) {
+    pick = function(index) {
+        dwarfVs.doProject(player, options[index]);
+        progressRound();
+    }
+    let optionsHTML = "<div><span style='color:" + player.color + "'>" + player.name + "</span>, choose a project!</div>";
+    options.forEach((option, index) => {
+        let unit = option();
+        optionsHTML = optionsHTML + "<div><button onclick='pick(" + index + ")'> "+ unit.name + "</button>" + unit.description + "</div>";
+    });
+    document.getElementById("options").innerHTML = optionsHTML;
+}
+
 var player1 = dwarfVs.getNewPlayer("Dan", "#FF0000");
 var player2 = dwarfVs.getNewPlayer("Kate", "#0000FF");
 
-dwarfVs.doRound(player1, player2);
+var round = 0;
+function progressRound() {
+    if( round % 4 === 0) {
+        if(round !== 0) {
+            dwarfVs.doRound(player1, player2);
+        }
+        giveOptions(player1, dwarfVs.getOptions());
+    } else if (round % 4 === 1) {
+        giveOptions(player2, dwarfVs.getOptions());
+    } else if (round % 4 === 2) {
+        dwarfVs.doRound(player1, player2);
+        giveOptions(player2, dwarfVs.getOptions());
+    } else {
+        giveOptions(player2, dwarfVs.getOptions());
+    }
+    round++;
+}
+progressRound();
+
+
 
 </script>

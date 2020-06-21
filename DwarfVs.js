@@ -31,6 +31,15 @@
         };
     };
 
+    module.doProject = function(player, project) {
+        unit = project();
+        if(unit.type === BUILDING) {
+            player.buildings.push(unit);
+        } else if(unit.type === UNIT) {
+            player.units.push(unit);
+        }
+    };
+
     module.doRound = function(player1, player2) {
         preparePlayerForCombat(player1);
         preparePlayerForCombat(player2);
@@ -136,14 +145,52 @@
         }
     }
 
+    var options = [
+        //*****UNITS********
+        createDwarf,
+        createMurderDwarf,
+        createArsonist,
+        //*****BUIDLINGS****
+        createHouse,
+        createCatapult,
+    ];
+
+    module.getOptions = function() {
+        shuffleArray(options)
+        return options.slice(0,3);
+    }
+
     //***********************UNITS********************************************************
 
     function createDwarf() {
         return {
-            name: "dwarf",
+            name: "Dwarf",
+            description: "Nothing special.",
             type: UNIT,
-            chanceToKillBuilding: 0.5,
-            chanceToKillUnit: 0.5,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            act: function(player) {}
+        }
+    }
+
+    function createMurderDwarf() {
+        return {
+            name: "Murder Dwarf",
+            description: "Loves killing people. 15% chance to kill a unit.",
+            type: UNIT,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: .15,
+            act: function(player) {}
+        }
+    }
+
+    function createArsonist() {
+        return {
+            name: "Arsonist",
+            description: "Burns shit down. 12% chance to destroy a building.",
+            type: UNIT,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: .15,
             act: function(player) {}
         }
     }
@@ -152,10 +199,22 @@
 
     function createHouse() {
         return {
-            name: "house",
+            name: "House",
+            description: "A place to live.",
             type: BUILDING,
-            chanceToKillBuilding: 0.5,
-            chanceToKillUnit: 0.5,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            act: function(player) {}
+        }
+    }
+
+    function createCatapult() {
+        return {
+            name: "Catapult",
+            description: "Lobs rocks. 8% chance to kill a building, 8% chance to kill a unit",
+            type: BUILDING,
+            chanceToKillBuilding: .08,
+            chanceToKillUnit: .08,
             act: function(player) {}
         }
     }
