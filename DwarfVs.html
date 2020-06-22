@@ -54,15 +54,45 @@ function progressRound() {
     }
     round++;
     scrollMessagesToBottom();
-    updateUnits();
+    updateUnitsForBothPlayers();
 }
-progressRound();
 
 function scrollMessagesToBottom() {
     let messages = document.getElementById("messages");
     messages.scrollTop = messages.scrollHeight;
 }
 
+function updateUnitsForBothPlayers() {
+    updateUnits("player1Units", player1);
+    updateUnits("player2Units", player2);
+}
 
+function updateUnits(divId, player) {
+    let unitsHTML = "<h1><span style='color:" + player.color + "'>" + player.name + "</span>'s units:</h1>"
+    unitsHTML = unitsHTML + "<h2>Buildings (" + player.buildings.length + ")</h2>";
+    unitsHTML = unitsHTML + getUnitTypeNumeration(player.buildings);
+    unitsHTML = unitsHTML + "<h2>Units (" + player.units.length + ")</h2>";
+    unitsHTML = unitsHTML + getUnitTypeNumeration(player.units);
+    document.getElementById(divId).innerHTML = unitsHTML;
+}
+
+function getUnitTypeNumeration(arr) {
+    let unitsHTML = "";
+    let i = 0;
+    while(i < arr.length) {
+        let amount = 1;
+        let name = arr[i].name;
+        i++;
+        while(i < arr.length && arr[i].name === name) {
+            i++;
+            amount++;
+        }
+        unitsHTML = unitsHTML + "<div>" + amount + " " + name + "</div>";
+    }
+    return unitsHTML;
+}
+
+updateUnitsForBothPlayers();
+progressRound();
 
 </script>
