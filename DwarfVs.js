@@ -173,7 +173,8 @@
         createHouse,
         createCatapult,
         createCommandCenter,
-        createMagicMissileSilo
+        createMagicMissileSilo,
+        createSeigeFactory
     ];
 
     module.getOptions = function() {
@@ -309,6 +310,21 @@
             canKill: true,
             chanceToKillBuilding: 0.15,
             chanceToKillUnit: 0
+        }
+    }
+
+    function createSeigeFactory() {
+        return {
+            name: "Seige Factory",
+            description: "Puts a little catapult in each of your buildings. Buildings get a 2% chance to kill buildings and a 1% chance to kill units.",
+            type: BUILDING,
+            canKill: true,
+            chanceToKillBuilding: 0,
+            chanceToKillUnit: 0,
+            prepare(player) {
+                player.buildingsChanceToKillBuilding += .02;
+                player.buildingsChanceToKillUnit += .01;
+            }
         }
     }
 
